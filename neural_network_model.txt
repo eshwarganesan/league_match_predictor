@@ -1,0 +1,95 @@
+Parameters for input neurons:
+
+Team A:
+    Top Lane:
+        Summoner:
+            Champion:
+                Runes
+                Mastery of Champion
+                Win Rate with Champion
+                Summoners Spells
+            Rank
+            Win Rate in Lane
+    Jungle:
+        Summoner:
+            Champion:
+                Runes
+                Mastery of Champion
+                Win Rate with Champion
+                Summoners Spells
+            Rank
+            Win Rate in Lane
+    Mid Lane:
+        Summoner:
+            Champion:
+                Runes
+                Mastery of Champion
+                Win Rate with Champion
+                Summoners Spells
+            Rank
+            Win Rate in Lane
+    Bot Lane:
+        Summoner:
+            Champion:
+                Runes
+                Mastery of Champion
+                Win Rate with Champion
+                Summoners Spells
+            Rank
+            Win Rate in Lane
+    Support:
+        Summoner:
+            Champion:
+                Runes
+                Mastery of Champion
+                Win Rate with Champion
+                Summoners Spells
+            Rank
+            Win Rate in Lane
+
+Team B:
+    Top Lane:
+        Summoner:
+            Champion:
+                Runes
+                Mastery of Champion
+                Win Rate with Champion
+                Summoners Spells
+            Rank
+            Win Rate in Lane
+    Jungle:
+        Summoner:
+            Champion:
+                Runes
+                Mastery of Champion
+                Win Rate with Champion
+                Summoners Spells
+            Rank
+            Win Rate in Lane
+    Mid Lane:
+        Summoner:
+            Champion:
+                Runes
+                Mastery of Champion
+                Win Rate with Champion
+                Summoners Spells
+            Rank
+            Win Rate in Lane
+    Bot Lane:
+        Summoner:
+            Champion:
+                Runes
+                Mastery of Champion
+                Win Rate with Champion
+                Summoners Spells
+            Rank
+            Win Rate in Lane
+    Support:
+        Summoner:
+            Champion:
+                Runes
+                Mastery of Champion
+                Win Rate with Champion
+                Summoners Spells
+            Rank
+            Win Rate in Lane
