@@ -34,6 +34,7 @@ async def get_match_data(session, matchId):
 
             # champion name
             player['Champion'] = player_data['championName']
+            player['ChampionID'] = player_data['championId']
 
             # champion mastery and summoner name
             puuid = player_data['puuid']
@@ -77,6 +78,12 @@ async def get_match_data(session, matchId):
     return game_data
 
 
+async def get_match_ids(session, puuid, startDate, endDate, queue):
+    matches_url = f"https://americas.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids?count=100&queue={queue}"
+    matches = await get_json(session, matches_url)
+    return matches
+
+
 async def get_json(session, url):
     async with session.get(url, headers=HEADERS) as resp:
         if resp.status == 429:
@@ -93,6 +100,7 @@ async def get_json(session, url):
                 message = await resp.text()
 
             raise ConnectionError(f"API Error Code: {resp.status}, Message: {message}")
+
 
 async def main():
     puuids = set()
