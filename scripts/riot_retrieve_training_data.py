@@ -2,13 +2,17 @@ import asyncio
 import aiohttp
 from match_data_processor import map_roles, MATCH_DATA
 from datetime import datetime
+from json import dump
 
 API_KEY = "RGAPI-9692dc56-853d-4be6-a128-eb0bc798e0fa"
-QUEUE_TYPE = input("Enter queue type (e.g., RANKED_SOLO_5x5): ").strip()
+QUEUE_TYPE = input("Enter queue type (e.g., RANKED_SOLO_5x5, RANKED_FLEX_SR): ").strip()
 TIER = input("Enter tier (e.g., DIAMOND): ").strip().upper()
 DIVISION = input("Enter division (e.g., I, II, III, IV): ").strip().upper()
 HEADERS = {"X-Riot-Token": API_KEY}
-
+QUEUE_ID = {
+    'RANKED_SOLO_5x5': 420,
+    'RANKED_FLEX_SR': 440
+}
 
 async def get_match_data(session, matchId):
 
@@ -78,7 +82,7 @@ async def get_match_data(session, matchId):
     return game_data
 
 
-async def get_match_ids(session, puuid, startDate, endDate, queue):
+async def get_match_ids(session, puuid, queue, startDate, endDate):
     matches_url = f"https://americas.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids?count=100&queue={queue}"
     matches = await get_json(session, matches_url)
     return matches
@@ -88,7 +92,7 @@ async def get_json(session, url):
     async with session.get(url, headers=HEADERS) as resp:
         if resp.status == 429:
             print("Rate limit hit, waiting...")
-            await asyncio.sleep(2)  # simple backoff
+            await asyncio.sleep(5)  # simple backoff
             return await get_json(session, url)
         if resp.status == 200:
             return await resp.json()
@@ -103,13 +107,16 @@ async def get_json(session, url):
 
 
 async def main():
+    file_path = f'data/{QUEUE_TYPE}/{TIER}/dataset.json'
     puuids = set()
     unique_matches = set()
+    dataset = []
     async with aiohttp.ClientSession() as session:
         # Get league entries
         league_url = f"https://na1.api.riotgames.com/lol/league/v4/entries/{QUEUE_TYPE}/{TIER}/{DIVISION}?page=1"
         league_entries = await get_json(session, league_url)
         print(f"Found {len(league_entries)} summoners in {QUEUE_TYPE} {TIER} {DIVISION}")
+        current_time = datetime.now().timestamp()
 
         # Convert summonerId -> PUUID
         for entry in league_entries:
@@ -117,21 +124,17 @@ async def main():
             puuids.add(entry['puuid'])
         
         # Get match IDs for each PUUID
-        '''
         for puuid in puuids:
-            matches_url = f"https://americas.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids?count=100&queue=420"
-            matches = await get_json(session, matches_url)
+            matches = await get_match_ids(session, puuid, QUEUE_ID[QUEUE_TYPE], current_time - 2592000, current_time)
             unique_matches.update(matches)
-        '''
-        puuid_list = list(puuids)
-        matches_url = f"https://americas.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid_list[0]}/ids?count=100&queue=420"
-        matches = await get_json(session, matches_url)
-        unique_matches.update(matches)
-        unique_matches_list = list(unique_matches)
-        print(unique_matches_list[0])
 
         # Get match details and outcome
-        game_data = await get_match_data(session, unique_matches_list[0])
-        print(game_data)
+        for match in unique_matches:
+            game_data = await get_match_data(session, match)
+            dataset.append(game_data)
+            
+        with open(file_path, 'x') as json_file:
+            dump(dataset, json_file)
+
 
 asyncio.run(main())
