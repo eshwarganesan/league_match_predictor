@@ -4,7 +4,7 @@ MATCH_DATA = {
   'Winner': '',
   'Team A': {
     'TOP': {
-      'SummonerName': '',
+      'PUUID': '',
       'Champion': '',
       'ChampionID': '',
       'Runes': {
@@ -19,7 +19,7 @@ MATCH_DATA = {
       }
     },
     'JUNGLE': {
-      'SummonerName': '',
+      'PUUID': '',
       'Champion': '',
       'ChampionID': '',
       'Runes': {
@@ -34,7 +34,7 @@ MATCH_DATA = {
       }
     },
     'MIDDLE': {
-      'SummonerName': '',
+      'PUUID': '',
       'Champion': '',
       'ChampionID': '',
       'Runes': {
@@ -49,7 +49,7 @@ MATCH_DATA = {
       }
     },
     'BOTTOM': {
-      'SummonerName': '',
+      'PUUID': '',
       'Champion': '',
       'ChampionID': '',
       'Runes': {
@@ -64,7 +64,7 @@ MATCH_DATA = {
       }
     },
     'SUPPORT': {
-      'SummonerName': '',
+      'PUUID': '',
       'Champion': '',
       'ChampionID': '',
       'Runes': {
@@ -81,7 +81,7 @@ MATCH_DATA = {
   },
   'Team B': {
     'TOP': {
-      'SummonerName': '',
+      'PUUID': '',
       'Champion': '',
       'ChampionID': '',
       'Runes': {
@@ -96,7 +96,7 @@ MATCH_DATA = {
       }
     },
     'JUNGLE': {
-      'SummonerName': '',
+      'PUUID': '',
       'Champion': '',
       'ChampionID': '',
       'Runes': {
@@ -111,7 +111,7 @@ MATCH_DATA = {
       }
     },
     'MIDDLE': {
-      'SummonerName': '',
+      'PUUID': '',
       'Champion': '',
       'ChampionID': '',
       'Runes': {
@@ -126,7 +126,7 @@ MATCH_DATA = {
       }
     },
     'BOTTOM': {
-      'SummonerName': '',
+      'PUUID': '',
       'Champion': '',
       'ChampionID': '',
       'Runes': {
@@ -141,7 +141,7 @@ MATCH_DATA = {
       }
     },
     'SUPPORT': {
-      'SummonerName': '',
+      'PUUID': '',
       'Champion': '',
       'ChampionID': '',
       'Runes': {
