@@ -211,8 +211,8 @@ async def main():
 
         # Convert summonerId -> PUUID
         for entry in league_entries:
-            print(f'PUUID: {entry['puuid']}')
-            puuids.add(entry['puuid'])
+            print(f'PUUID: {entry["PUUID"]}')
+            puuids.add(entry['PUUID'])
         
         # Get match IDs for each PUUID
         for puuid in puuids:
