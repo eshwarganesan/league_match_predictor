@@ -217,7 +217,7 @@ async def main():
         # Get match IDs for each PUUID
         for puuid in puuids:
             print(f'Getting match IDs for PUUID: {puuid}')
-            matches = await get_match_ids(session, puuid, QUEUE_ID[QUEUE_TYPE], current_time - 2592000, current_time)
+            matches = await get_match_ids(session, puuid, QUEUE_ID[QUEUE_TYPE], 1767953321, 1770718121)
             print(f'Matches found: {matches}')
             unique_matches.update(matches)
 
