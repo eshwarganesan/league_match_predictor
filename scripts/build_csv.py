@@ -1,5 +1,6 @@
 import json
 import pandas as pd
+import argparse
 
 # Lane order is fixed
 ROLE_ORDER = ["TOP", "JUNGLE", "MIDDLE", "BOTTOM", "SUPPORT"]
@@ -34,6 +35,11 @@ def rank_to_number(rank_dict):
     tier = rank_dict["Tier"]
     division = rank_dict["Division"]
 
+    if not tier:
+        tier = 'IRON'
+    if not division:
+        division = 'I'
+        
     tier_val = TIERS[tier]
 
     # Master+ tiers have no division
@@ -114,7 +120,24 @@ def convert_matches_to_csv(json_file, output_csv):
 # ==========================================
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="Convert JSON match dataset to CSV (default: debug.json -> matches.csv)"
+    )
+    parser.add_argument(
+        "json_file",
+        nargs="?",
+        default="debug.json",
+        help="Path to the input JSON file (default: debug.json)"
+    )
+    parser.add_argument(
+        "output_csv",
+        nargs="?",
+        default="matches.csv",
+        help="Path to the output CSV file (default: matches.csv)"
+    )
+    args = parser.parse_args()
+
     convert_matches_to_csv(
-        json_file="debug.json",
-        output_csv="matches.csv"
+        json_file=args.json_file,
+        output_csv=args.output_csv
     )

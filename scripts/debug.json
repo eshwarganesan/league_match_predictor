@@ -1,0 +1,101 @@
+[
+    {
+        "Date": "2026-01-09",
+        "MatchID": "NA1_5459352469",
+        "Winner": "Team A",
+        "Team A": {
+            "TOP": {
+                "SummonerName": "a1cu#NA1",
+                "Champion": "Yone",
+                "ChampionID": 777,
+                "Runes": { "Primary": 8008, "Secondary": 8400 },
+                "Mastery": 242689,
+                "SummonerSpells": [14, 4],
+                "Rank": { "Division": "I", "Tier": "DIAMOND" }
+            },
+            "JUNGLE": {
+                "SummonerName": "Jisu#uwu",
+                "Champion": "Ekko",
+                "ChampionID": 245,
+                "Runes": { "Primary": 8128, "Secondary": 8300 },
+                "Mastery": 469575,
+                "SummonerSpells": [11, 4],
+                "Rank": { "Division": "I", "Tier": "MASTER" }
+            },
+            "MIDDLE": {
+                "SummonerName": "SomeoneElseCarry#NA1",
+                "Champion": "Viktor",
+                "ChampionID": 112,
+                "Runes": { "Primary": 8214, "Secondary": 8400 },
+                "Mastery": 52550,
+                "SummonerSpells": [12, 4],
+                "Rank": { "Division": "II", "Tier": "EMERALD" }
+            },
+            "BOTTOM": {
+                "SummonerName": "WaffIesFTW#NA1",
+                "Champion": "Lucian",
+                "ChampionID": 236,
+                "Runes": { "Primary": 8005, "Secondary": 8300 },
+                "Mastery": 108728,
+                "SummonerSpells": [21, 4],
+                "Rank": { "Division": "III", "Tier": "DIAMOND" }
+            },
+            "SUPPORT": {
+                "SummonerName": "jasmine#jinu",
+                "Champion": "Yuumi",
+                "ChampionID": 350,
+                "Runes": { "Primary": 8214, "Secondary": 8400 },
+                "Mastery": 2330561,
+                "SummonerSpells": [3, 7],
+                "Rank": { "Division": "II", "Tier": "DIAMOND" }
+            }
+        },
+        "Team B": {
+            "TOP": {
+                "SummonerName": "Westifer#inter",
+                "Champion": "Swain",
+                "ChampionID": 50,
+                "Runes": { "Primary": 8214, "Secondary": 8400 },
+                "Mastery": 821377,
+                "SummonerSpells": [4, 12],
+                "Rank": { "Division": "I", "Tier": "MASTER" }
+            },
+            "JUNGLE": {
+                "SummonerName": "LaydeeABG#NA1",
+                "Champion": "Viego",
+                "ChampionID": 234,
+                "Runes": { "Primary": 8010, "Secondary": 8300 },
+                "Mastery": 246526,
+                "SummonerSpells": [4, 11],
+                "Rank": { "Division": "I", "Tier": "MASTER" }
+            },
+            "MIDDLE": {
+                "SummonerName": "Mr Thot#NA1",
+                "Champion": "Lissandra",
+                "ChampionID": 127,
+                "Runes": { "Primary": 8112, "Secondary": 8000 },
+                "Mastery": 1680243,
+                "SummonerSpells": [4, 12],
+                "Rank": { "Division": "I", "Tier": "MASTER" }
+            },
+            "BOTTOM": {
+                "SummonerName": "Gedsuo#alex",
+                "Champion": "Aphelios",
+                "ChampionID": 523,
+                "Runes": { "Primary": 8005, "Secondary": 8200 },
+                "Mastery": 44138,
+                "SummonerSpells": [4, 21],
+                "Rank": { "Division": "I", "Tier": "DIAMOND" }
+            },
+            "SUPPORT": {
+                "SummonerName": "Caketharsis#NYHC",
+                "Champion": "Thresh",
+                "ChampionID": 412,
+                "Runes": { "Primary": 8351, "Secondary": 8400 },
+                "Mastery": 1239046,
+                "SummonerSpells": [3, 4],
+                "Rank": { "Division": "I", "Tier": "GRANDMASTER" }
+            }
+        }
+    }
+]

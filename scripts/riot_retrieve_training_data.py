@@ -2,7 +2,10 @@ import asyncio
 import aiohttp
 from match_data_processor import map_roles, MATCH_DATA
 from datetime import datetime
-from json import dump
+from json import dump, dumps
+import os
+import sqlite3
+from tqdm import tqdm
 
 API_KEY = "RGAPI-9692dc56-853d-4be6-a128-eb0bc798e0fa"
 QUEUE_TYPE = input("Enter queue type (e.g., RANKED_SOLO_5x5, RANKED_FLEX_SR): ").strip()
@@ -13,6 +16,88 @@ QUEUE_ID = {
     'RANKED_SOLO_5x5': 420,
     'RANKED_FLEX_SR': 440
 }
+
+
+def append_ndjson(file_path, obj):
+    os.makedirs(os.path.dirname(file_path), exist_ok=True)
+    line = dumps(obj, default=str)
+    
+    # create fresh array file if missing/empty
+    if not os.path.exists(file_path) or os.path.getsize(file_path) == 0:
+        with open(file_path, 'w', encoding='utf-8') as f:
+            f.write('[\n')
+            f.write(line)
+            f.write('\n]\n')
+        return
+
+    # read whole file, insert before last ']'
+    with open(file_path, 'r+', encoding='utf-8') as f:
+        content = f.read()
+        idx = content.rfind(']')
+        if idx == -1:
+            # corrupt file: back it up and recreate
+            backup = file_path + '.corrupt'
+            os.rename(file_path, backup)
+            with open(file_path, 'w', encoding='utf-8') as g:
+                g.write('[\n' + line + '\n]\n')
+            print(f'Backed up corrupt file to {backup} and created new array file.')
+            return
+
+        # check if array currently empty (i.e. '...[' immediately before ']')
+        prefix = content[:idx]
+        if prefix.rstrip().endswith('['):
+            new_content = prefix + line + content[idx:]
+        else:
+            new_content = prefix + ',\n' + line + content[idx:]
+
+        f.seek(0)
+        f.truncate()
+        f.write(new_content)
+
+
+def init_index(db_path):
+    os.makedirs(os.path.dirname(db_path), exist_ok=True)
+    conn = sqlite3.connect(db_path, timeout=10, isolation_level=None)
+    # use WAL for better concurrent append behavior
+    conn.execute("PRAGMA journal_mode=WAL;")
+    conn.execute("""
+    CREATE TABLE IF NOT EXISTS match_index (
+        match_id TEXT PRIMARY KEY,
+        created_at REAL,
+        pending INTEGER DEFAULT 1
+    )
+    """)
+    return conn
+
+
+def reserve_match(conn, match_id):
+    try:
+        now = datetime.now().timestamp()
+        with conn:
+            conn.execute(
+                "INSERT INTO match_index(match_id, created_at, pending) VALUES (?, ?, 1)",
+                (match_id, now)
+            )
+        return True
+    except sqlite3.IntegrityError:
+        # already present
+        return False
+
+
+def finalize_match(conn, match_id):
+    with conn:
+        conn.execute("UPDATE match_index SET pending=0 WHERE match_id = ?", (match_id,))
+
+
+def get_all_match_ids(conn):
+    cur = conn.execute("SELECT match_id FROM match_index WHERE pending = 0")
+    return {row[0] for row in cur.fetchall()}
+
+
+def get_pending_matches(conn):
+    cur = conn.execute("SELECT match_id FROM match_index WHERE pending = 1")
+    return [row[0] for row in cur.fetchall()]
+
 
 async def get_match_data(session, matchId):
 
@@ -48,10 +133,14 @@ async def get_match_data(session, matchId):
             mastery = await get_json(session, mastery_url)
             player['Mastery'] = mastery['championPoints']
 
+            """
             summoner_url = f"https://americas.api.riotgames.com/riot/account/v1/accounts/by-puuid/{puuid}"
             summoner = await get_json(session, summoner_url)
             player['SummonerName'] = f'{summoner['gameName']}#{summoner['tagLine']}'
+            """
 
+            player['PUUID'] = puuid
+            
             # get summoner's rank
             rank_url = f"https://na1.api.riotgames.com/lol/league/v4/entries/by-puuid/{puuid}"
             rank = await get_json(session, rank_url)
@@ -83,7 +172,7 @@ async def get_match_data(session, matchId):
 
 
 async def get_match_ids(session, puuid, queue, startDate, endDate):
-    matches_url = f"https://americas.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids?count=100&queue={queue}"
+    matches_url = f"https://americas.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids?startTime={startDate}&endTime={endDate}&count=100&queue={queue}"
     matches = await get_json(session, matches_url)
     return matches
 
@@ -92,7 +181,7 @@ async def get_json(session, url):
     async with session.get(url, headers=HEADERS) as resp:
         if resp.status == 429:
             print("Rate limit hit, waiting...")
-            await asyncio.sleep(5)  # simple backoff
+            await asyncio.sleep(120)  # simple backoff
             return await get_json(session, url)
         if resp.status == 200:
             return await resp.json()
@@ -108,15 +197,17 @@ async def get_json(session, url):
 
 async def main():
     file_path = f'data/{QUEUE_TYPE}/{TIER}/dataset.json'
+    db_path = f'data/{QUEUE_TYPE}/{TIER}/dataset_index.db'
+    conn = init_index(db_path)
     puuids = set()
     unique_matches = set()
-    dataset = []
+
     async with aiohttp.ClientSession() as session:
         # Get league entries
         league_url = f"https://na1.api.riotgames.com/lol/league/v4/entries/{QUEUE_TYPE}/{TIER}/{DIVISION}?page=1"
         league_entries = await get_json(session, league_url)
         print(f"Found {len(league_entries)} summoners in {QUEUE_TYPE} {TIER} {DIVISION}")
-        current_time = datetime.now().timestamp()
+        current_time = int(datetime.now().timestamp())
 
         # Convert summonerId -> PUUID
         for entry in league_entries:
@@ -125,16 +216,36 @@ async def main():
         
         # Get match IDs for each PUUID
         for puuid in puuids:
+            print(f'Getting match IDs for PUUID: {puuid}')
             matches = await get_match_ids(session, puuid, QUEUE_ID[QUEUE_TYPE], current_time - 2592000, current_time)
+            print(f'Matches found: {matches}')
             unique_matches.update(matches)
 
-        # Get match details and outcome
-        for match in unique_matches:
-            game_data = await get_match_data(session, match)
-            dataset.append(game_data)
+        # Get match details and outcome (show progress bar; keep status updates on same line)
+        matches_list = list(unique_matches)
+        total = len(matches_list)
+        print(f'{total} matches found')
+        with tqdm(matches_list, desc="Fetching matches", unit="match") as pbar:
+            for match in pbar:
+                # update an inline status instead of printing new lines
+                remaining = total - pbar.n - 1
+                pbar.set_postfix({"left": remaining})
+                pbar.set_description(f"Getting")
+
+                # Reserve in index; if already present, emit a single-line message
+                if not reserve_match(conn, match):
+                    pbar.write(f'Match {match} already exists, skipping.')
+                    continue
+
+                try:
+                    game_data = await get_match_data(session, match)
+                    append_ndjson(file_path, game_data)
+                    finalize_match(conn, match)
+                except Exception as err:
+                    # use pbar.write so the error shows above the progress bar without corrupting it
+                    pbar.write(f'Failed to get data for {match} due to {err}')
+                    continue
             
-        with open(file_path, 'x') as json_file:
-            dump(dataset, json_file)
 
 
 asyncio.run(main())
